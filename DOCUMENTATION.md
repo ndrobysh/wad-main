@@ -1,197 +1,94 @@
-# Documentation Base de Données
+# Documentation
 
-Guide de connexion aux bases de données MongoDB pour chaque microservice.
-
-## Vue d'ensemble
-
-Chaque service possède sa propre instance MongoDB. En développement local avec Docker, aucune authentification n'est requise.
-
-| Service | Base de données | Port externe | Container |
-|---------|----------------|--------------|-----------|
-| auth-service | auth_db | 27017 | wad-mongo-auth |
-| player-service | player_db | 27018 | wad-mongo-player |
-| monster-service | monster_db | 27019 | wad-mongo-monster |
-| invocation-service | invocation_db | 27020 | wad-mongo-invocation |
-| combat-service | combat_db | 27021 | wad-mongo-combat |
+Documentation technique du projet WAD Gacha Game.
 
 ---
 
-## Connection Strings
+## Base de Données MongoDB
 
-### Auth Service (port 27017)
-```
-mongodb://localhost:27017/auth_db
-```
+Chaque service possède sa propre instance MongoDB.
 
-### Player Service (port 27018)
-```
-mongodb://localhost:27018/player_db
-```
+> ⚠️ **Pas d'authentification** : Les bases MongoDB n'ont ni username ni password en développement. Connexion directe sans credentials.
 
-### Monster Service (port 27019)
-```
-mongodb://localhost:27019/monster_db
-```
+| Service | Database | Port | Connection String |
+|---------|----------|------|-------------------|
+| auth | auth_db | 27017 | `mongodb://localhost:27017/auth_db` |
+| player | player_db | 27018 | `mongodb://localhost:27018/player_db` |
+| monster | monster_db | 27019 | `mongodb://localhost:27019/monster_db` |
+| invocation | invocation_db | 27020 | `mongodb://localhost:27020/invocation_db` |
+| combat | combat_db | 27021 | `mongodb://localhost:27021/combat_db` |
 
-### Invocation Service (port 27020)
-```
-mongodb://localhost:27020/invocation_db
-```
-
-### Combat Service (port 27021)
-```
-mongodb://localhost:27021/combat_db
-```
-
----
-
-## Connexion avec mongosh
-
+**Connexion rapide :**
 ```bash
-# Auth DB
 mongosh "mongodb://localhost:27017/auth_db"
-
-# Player DB
-mongosh "mongodb://localhost:27018/player_db"
-
-# Monster DB
-mongosh "mongodb://localhost:27019/monster_db"
-
-# Invocation DB
-mongosh "mongodb://localhost:27020/invocation_db"
-
-# Combat DB
-mongosh "mongodb://localhost:27021/combat_db"
 ```
 
----
-
-## Connexion avec MongoDB Compass
-
-1. Ouvrir MongoDB Compass
-2. Nouvelle connexion avec l'URI correspondante (voir tableau ci-dessus)
-3. Cliquer sur "Connect"
+**Données de test :** voir `docker-dev-env/mongo-init/`
 
 ---
 
-## Collections par base
+## API Endpoints
 
-### auth_db
-| Collection | Description |
-|------------|-------------|
-| users | Utilisateurs (username, password) |
-| tokens | Tokens d'authentification actifs |
+> 📌 **Convention obligatoire** : Tous les endpoints doivent suivre le format `/api/{service}/{endpoint}`
+> 
+> Exemples : `/api/auth/login`, `/api/player/profile`, `/api/monster/list`
 
-### player_db
-| Collection | Description |
-|------------|-------------|
-| players | Profils des joueurs (username, niveau, jetons, monstres) |
+### Auth Service (port 8081)
+📖 [Documentation détaillée](auth-service/README.md)
 
-### monster_db
-| Collection | Description |
-|------------|-------------|
-| monsters | Catalogue des monstres disponibles (nom, élément, stats) |
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/api/auth/login` | Connexion → token |
+| POST | `/api/auth/validate` | Validation token → username |
+| POST | `/api/auth/logout` | Déconnexion |
 
-### invocation_db
-| Collection | Description |
-|------------|-------------|
-| invocations | Historique des invocations |
+### Player Service (port 8082)
+📖 [Documentation détaillée](player-service/README.md)
 
-### combat_db
-| Collection | Description |
-|------------|-------------|
-| combats | Historique des combats |
+*À documenter*
+
+### Monster Service (port 8083)
+📖 [Documentation détaillée](monster-service/README.md)
+
+*À documenter*
+
+### Invocation Service (port 8084)
+📖 [Documentation détaillée](invocation-service/README.md)
+
+*À documenter*
+
+### Combat Service (port 8085)
+📖 [Documentation détaillée](combat-service/README.md)
+
+*À documenter*
+
+### Frontend (port 3000)
+📖 [Documentation détaillée](frontend-service/README.md)
 
 ---
 
-## Données de test
+## Utilisateurs de test
 
-Les scripts d'initialisation se trouvent dans `docker-dev-env/mongo-init/`.
-
-### Utilisateurs (auth_db.users)
-| username | password |
+| Username | Password |
 |----------|----------|
 | player1 | password123 |
 | player2 | password123 |
 | admin | admin123 |
-| testuser | test123 |
-
-### Joueurs (player_db.players)
-Les joueurs sont créés automatiquement avec :
-- 100 jetons de départ
-- Niveau 1
-- 0 points d'expérience
-
-### Monstres (monster_db.monsters)
-Monstres disponibles par rareté :
-- **Légendaire (5%)** : Dragon de Feu, Phoenix Céleste
-- **Épique (15%)** : Golem de Pierre, Esprit de Glace
-- **Rare (30%)** : Loup des Ombres, Griffon, Serpent Venimeux
-- **Commun (50%)** : Gobelin, Slime, Rat Géant
 
 ---
 
-## Configuration dans les services
-
-Chaque service Spring Boot utilise ces variables d'environnement :
-
-```yaml
-spring:
-  data:
-    mongodb:
-      host: ${MONGO_HOST:localhost}
-      port: ${MONGO_PORT:27017}
-      database: <nom_de_la_db>
-```
-
-En Docker, `MONGO_HOST` pointe vers le container MongoDB correspondant.
-
----
-
-## Commandes utiles
+## Docker
 
 ```bash
-# Lister toutes les bases
-mongosh --eval "show dbs"
+# Lancer tous les services
+cd docker-dev-env
+docker-compose up --build
 
-# Lister les collections d'une base
-mongosh "mongodb://localhost:27017/auth_db" --eval "show collections"
+# Lancer uniquement les bases
+docker-compose up mongo-auth mongo-player mongo-monster mongo-invocation
 
-# Compter les documents
-mongosh "mongodb://localhost:27017/auth_db" --eval "db.users.countDocuments()"
-
-# Voir tous les utilisateurs
-mongosh "mongodb://localhost:27017/auth_db" --eval "db.users.find().pretty()"
-
-# Supprimer tous les tokens (reset sessions)
-mongosh "mongodb://localhost:27017/auth_db" --eval "db.tokens.deleteMany({})"
-```
-
----
-
-## Troubleshooting
-
-### Container MongoDB ne démarre pas
-```bash
-# Vérifier les logs
-docker logs wad-mongo-auth
-
-# Supprimer le volume et recréer
-docker-compose down -v
-docker-compose up mongo-auth
-```
-
-### Impossible de se connecter
-1. Vérifier que Docker est lancé
-2. Vérifier que le container tourne : `docker ps`
-3. Vérifier le port : `netstat -an | findstr 27017`
-
-### Réinitialiser une base
-```bash
-# Supprimer le volume
+# Reset une base
 docker-compose down
 docker volume rm docker-dev-env_mongo-auth-data
-
-# Recréer
 docker-compose up mongo-auth
 ```

@@ -2,5 +2,11 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/auth-service" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/combat-service" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/frontend-service" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/invocation-service" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/monster-service" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/player-service" vcs="Git" />
   </component>
 </project>

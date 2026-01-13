@@ -209,9 +209,9 @@ services:
       - COMBAT_API_URL=http://combat-service:8085
     depends_on:
       - auth-service
-      - player-service
-      - monster-service
-      - invocation-service
+      # - player-service
+      # - monster-service
+      # - invocation-service
     networks:
       - wad-network
     restart: unless-stopped

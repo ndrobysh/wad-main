@@ -127,3 +127,8 @@ docker-compose down
 docker volume rm docker-dev-env_mongo-auth-data
 docker-compose up mongo-auth
 ```
+ ⚠️ **Docker affiche une ancienne version ?** Docker utilise des images en cache. Pour forcer la reconstruction :
+> ```bash
+> docker-compose build --no-cache service
+> docker-compose up frontend-service
+> ```

@@ -44,4 +44,3 @@ docker-compose up --build -d
 ## Données initiales
 Scripts dans `mongo-init/`:
 - `auth/init.js` - Utilisateurs
-

@@ -1,25 +1,25 @@
 // Script d'initialisation MongoDB pour auth_db
-// Création des utilisateurs de test
+// Mots de passe hashés avec BCrypt (cost=10)
 
 db = db.getSiblingDB('auth_db');
 
-// Collection users avec utilisateurs de test
+// Collection users avec utilisateurs de test (passwords BCrypt hashés)
 db.users.insertMany([
     {
         username: "player1",
-        password: "password123"
+        password: "$2a$10$3COae1yzwhqLsBNlm7VOw.UsAkZs/IWxcQyZ7clHB3jwujlNSRF5u" // password123
     },
     {
         username: "player2",
-        password: "password123"
+        password: "$2a$10$3COae1yzwhqLsBNlm7VOw.UsAkZs/IWxcQyZ7clHB3jwujlNSRF5u" // password123
     },
     {
         username: "admin",
-        password: "admin123"
+        password: "$2a$10$dJVV1cw5s4MJ0pcxy8f55OuNnSPf9RfUsdaxUt4lw0RdqHzB3Pk3O" // admin123
     },
     {
         username: "testuser",
-        password: "test123"
+        password: "$2a$10$1/H4LJF04U12XmgcNjMzZeC/5NOEeekc/2Hp5Bj3A/UotoGb2lQH6" // test123
     }
 ]);
 

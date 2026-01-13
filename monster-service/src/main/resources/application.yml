@@ -1,0 +1,16 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: monster-service
+  data:
+    mongodb:
+      host: ${MONGO_HOST:localhost}
+      port: ${MONGO_PORT:27017}
+      database: monster_db
+
+# Service auth pour validation token
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8081}

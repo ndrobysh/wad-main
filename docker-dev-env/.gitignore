@@ -1,0 +1,9 @@
+# Données MongoDB
+data/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

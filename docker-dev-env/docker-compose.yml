@@ -1,0 +1,234 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # Bases MongoDB (une par service)
+  # ============================================
+  
+  mongo-auth:
+    image: mongo:7.0
+    container_name: wad-mongo-auth
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-auth-data:/data/db
+      - ./mongo-init/auth:/docker-entrypoint-initdb.d:ro
+    networks:
+      - wad-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-player:
+    image: mongo:7.0
+    container_name: wad-mongo-player
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-player-data:/data/db
+      - ./mongo-init/player:/docker-entrypoint-initdb.d:ro
+    networks:
+      - wad-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-monster:
+    image: mongo:7.0
+    container_name: wad-mongo-monster
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo-monster-data:/data/db
+      - ./mongo-init/monster:/docker-entrypoint-initdb.d:ro
+    networks:
+      - wad-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-invocation:
+    image: mongo:7.0
+    container_name: wad-mongo-invocation
+    ports:
+      - "27020:27017"
+    volumes:
+      - mongo-invocation-data:/data/db
+      - ./mongo-init/invocation:/docker-entrypoint-initdb.d:ro
+    networks:
+      - wad-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-combat:
+    image: mongo:7.0
+    container_name: wad-mongo-combat
+    ports:
+      - "27021:27017"
+    volumes:
+      - mongo-combat-data:/data/db
+    networks:
+      - wad-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Services applicatifs
+  # ============================================
+
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    container_name: wad-auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGO_HOST=mongo-auth
+      - MONGO_PORT=27017
+    depends_on:
+      mongo-auth:
+        condition: service_healthy
+    networks:
+      - wad-network
+    restart: unless-stopped
+
+  player-service:
+    build:
+      context: ../player-service
+      dockerfile: Dockerfile
+    container_name: wad-player-service
+    ports:
+      - "8082:8082"
+    environment:
+      - MONGO_HOST=mongo-player
+      - MONGO_PORT=27017
+      - AUTH_SERVICE_URL=http://auth-service:8081
+    depends_on:
+      mongo-player:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - wad-network
+    restart: unless-stopped
+
+  monster-service:
+    build:
+      context: ../monster-service
+      dockerfile: Dockerfile
+    container_name: wad-monster-service
+    ports:
+      - "8083:8083"
+    environment:
+      - MONGO_HOST=mongo-monster
+      - MONGO_PORT=27017
+      - AUTH_SERVICE_URL=http://auth-service:8081
+    depends_on:
+      mongo-monster:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - wad-network
+    restart: unless-stopped
+
+  invocation-service:
+    build:
+      context: ../invocation-service
+      dockerfile: Dockerfile
+    container_name: wad-invocation-service
+    ports:
+      - "8084:8084"
+    environment:
+      - MONGO_HOST=mongo-invocation
+      - MONGO_PORT=27017
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - MONSTER_SERVICE_URL=http://monster-service:8083
+      - PLAYER_SERVICE_URL=http://player-service:8082
+    depends_on:
+      mongo-invocation:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      monster-service:
+        condition: service_started
+      player-service:
+        condition: service_started
+    networks:
+      - wad-network
+    restart: unless-stopped
+
+  combat-service:
+    build:
+      context: ../combat-service
+      dockerfile: Dockerfile
+    container_name: wad-combat-service
+    ports:
+      - "8085:8085"
+    environment:
+      - MONGO_HOST=mongo-combat
+      - MONGO_PORT=27017
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - MONSTER_SERVICE_URL=http://monster-service:8083
+    depends_on:
+      mongo-combat:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      monster-service:
+        condition: service_started
+    networks:
+      - wad-network
+    restart: unless-stopped
+
+  frontend-service:
+    build:
+      context: ../frontend-service
+      dockerfile: Dockerfile
+    container_name: wad-frontend-service
+    ports:
+      - "3000:3000"
+    environment:
+      - AUTH_API_URL=http://auth-service:8081
+      - PLAYER_API_URL=http://player-service:8082
+      - MONSTER_API_URL=http://monster-service:8083
+      - INVOCATION_API_URL=http://invocation-service:8084
+      - COMBAT_API_URL=http://combat-service:8085
+    depends_on:
+      - auth-service
+      - player-service
+      - monster-service
+      - invocation-service
+    networks:
+      - wad-network
+    restart: unless-stopped
+
+# ============================================
+# Réseaux
+# ============================================
+networks:
+  wad-network:
+    driver: bridge
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  mongo-auth-data:
+  mongo-player-data:
+  mongo-monster-data:
+  mongo-invocation-data:
+  mongo-combat-data:

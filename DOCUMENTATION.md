@@ -33,6 +33,41 @@ mongosh "mongodb://localhost:27017/auth_db"
 > 
 > Exemples : `/api/auth/login`, `/api/player/profile`, `/api/monster/list`
 
+### Swagger UI
+
+Chaque service expose sa documentation interactive :
+
+| Service | Swagger UI |
+|---------|------------|
+| auth | http://localhost:8081/swagger-ui.html |
+| player | http://localhost:8082/swagger-ui.html |
+| monster | http://localhost:8083/swagger-ui.html |
+| invocation | http://localhost:8084/swagger-ui.html |
+| combat | http://localhost:8085/swagger-ui.html |
+
+#### Ajouter Swagger sur un contrôleur
+
+```java
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping("/api/exemple")
+@Tag(name = "Exemple", description = "Description du groupe d'endpoints")
+public class ExempleController {
+
+    @Operation(summary = "Titre court", description = "Description détaillée")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Succès"),
+        @ApiResponse(responseCode = "400", description = "Erreur")
+    })
+    @GetMapping("/endpoint")
+    public ResponseEntity<?> monEndpoint() { ... }
+}
+```
+
 ### Auth Service (port 8081)
 📖 [Documentation détaillée](auth-service/README.md)
 

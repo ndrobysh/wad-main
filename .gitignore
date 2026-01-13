@@ -41,6 +41,7 @@ build/
 *.iml
 *.ipr
 out/
+.vscode/
 
 # IDE - Eclipse
 .apt_generated

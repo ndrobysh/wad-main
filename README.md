@@ -2,6 +2,10 @@
 
 Jeu de type Gacha en microservices avec Spring Boot et MongoDB.
 
+## 📚 Documentation
+
+- [**Guide Base de Données**](DOCUMENTATION.md) - Connexion et configuration MongoDB
+
 ## Structure du projet
 
 ```

@@ -1,0 +1,18 @@
+[submodule "auth-service"]
+	path = auth-service
+	url = https://github.com/ndrobysh/wad-auth-service.git
+[submodule "player-service"]
+	path = player-service
+	url = https://github.com/ndrobysh/wad-player-service.git
+[submodule "monster-service"]
+	path = monster-service
+	url = https://github.com/ndrobysh/wad-monster-service.git
+[submodule "invocation-service"]
+	path = invocation-service
+	url = https://github.com/ndrobysh/wad-invocation-service.git
+[submodule "combat-service"]
+	path = combat-service
+	url = https://github.com/ndrobysh/wad-combat-service.git
+[submodule "frontend-service"]
+	path = frontend-service
+	url = https://github.com/ndrobysh/wad-frontend-service.git
